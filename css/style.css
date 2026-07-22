@@ -592,6 +592,8 @@ img { display: block; }
 }
 .news-consent span { text-decoration: underline; }
 .news-thanks { font-size: 14px; color: #555; }
+.news-error { font-size: 11px; color: #b0453b; margin-top: 10px; }
+.subscribe-btn:disabled { opacity: .55; cursor: default; }
 
 .info-row {
   display: grid;

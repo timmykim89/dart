@@ -7,6 +7,12 @@
 (function () {
   'use strict';
 
+  // Newsletter signup proxy — same endpoint used by the cync homepage.
+  // POSTs { email } and expects { ok: true }. The email service integration
+  // lives behind this proxy, so no keys are needed on the D'ART side.
+  var NEWSLETTER_ENDPOINT =
+    'https://symphonious-baklava-a36141.netlify.app/.netlify/functions/signup';
+
   var IG_ICON =
     '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">' +
     '<rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4.2"/>' +
@@ -79,6 +85,7 @@
                 '<input type="checkbox" required>' +
                 '(required) I agree to the <span>privacy policy</span>' +
               '</label>' +
+              '<div class="news-error" role="alert" hidden></div>' +
             '</form>' +
           '</div>' +
           '<div>' +
@@ -138,17 +145,56 @@
   function wireNewsletter() {
     var form = document.querySelector('.news-form');
     if (!form) return;
+
+    var emailInput = form.querySelector('.subscribe-input');
+    var consent = form.querySelector('.news-consent input');
+    var btn = form.querySelector('.subscribe-btn');
+    var errEl = form.querySelector('.news-error');
+
+    function showError(msg) {
+      if (errEl) { errEl.textContent = msg; errEl.hidden = false; }
+    }
+    function clearError() {
+      if (errEl) { errEl.textContent = ''; errEl.hidden = true; }
+    }
+
     form.addEventListener('submit', function (e) {
       e.preventDefault();
-      var email = form.querySelector('.subscribe-input');
-      var consent = form.querySelector('.news-consent input');
-      if (!email.value || !email.checkValidity() || !consent.checked) {
-        // let the native validity UI show
+      clearError();
+
+      if (!emailInput.value || !emailInput.checkValidity() || !consent.checked) {
         form.reportValidity && form.reportValidity();
         return;
       }
-      // No endpoint in the prototype — production needs a real backend call.
-      form.outerHTML = '<div class="news-thanks">Thank you, we\'ll be in touch.</div>';
+
+      var email = emailInput.value.trim();
+      btn.disabled = true;
+      btn.textContent = '…';
+
+      fetch(NEWSLETTER_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email })
+      })
+        .then(function (r) {
+          return r.json().catch(function () { return {}; })
+            .then(function (d) { return { ok: r.ok, data: d }; });
+        })
+        .then(function (res) {
+          if (res.ok && res.data && res.data.ok) {
+            // Match the design: swap the form for a thank-you line.
+            form.outerHTML = '<div class="news-thanks">Thank you, we\'ll be in touch.</div>';
+          } else {
+            btn.disabled = false;
+            btn.textContent = '→';
+            showError('Something went wrong. Please try again.');
+          }
+        })
+        .catch(function () {
+          btn.disabled = false;
+          btn.textContent = '→';
+          showError('Network error. Please try again.');
+        });
     });
   }
 
