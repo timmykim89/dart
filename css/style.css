@@ -591,9 +591,81 @@ img { display: block; }
   flex-shrink: 0;
 }
 .news-consent span { text-decoration: underline; }
+.news-policy-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  text-decoration: underline;
+}
 .news-thanks { font-size: 14px; color: #555; }
 .news-error { font-size: 11px; color: #b0453b; margin-top: 10px; }
 .subscribe-btn:disabled { opacity: .55; cursor: default; }
+
+/* Privacy policy modal */
+.policy-modal[hidden] { display: none; }
+.policy-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 9995;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.policy-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, .5);
+}
+.policy-card {
+  position: relative;
+  z-index: 1;
+  background: #fff;
+  width: 100%;
+  max-width: 440px;
+  padding: 34px 30px 24px;
+  border-radius: 6px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, .3);
+}
+.policy-x {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  background: none;
+  border: none;
+  font-size: 22px;
+  line-height: 1;
+  color: #999;
+  cursor: pointer;
+  padding: 0;
+}
+.policy-title {
+  font-size: 21px;
+  font-weight: 500;
+  color: #111;
+  margin-bottom: 16px;
+}
+.policy-text {
+  font-size: 12.5px;
+  line-height: 1.75;
+  color: #555;
+  margin: 0 0 10px;
+}
+.policy-text:last-of-type { margin-bottom: 0; }
+.policy-foot { margin-top: 20px; text-align: right; }
+.policy-close-btn {
+  border: 1px solid #111;
+  background: transparent;
+  color: #111;
+  font-size: 10px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  padding: 10px 24px;
+  cursor: pointer;
+}
 
 .info-row {
   display: grid;

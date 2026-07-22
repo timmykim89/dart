@@ -83,7 +83,8 @@
               '</div>' +
               '<label class="news-consent">' +
                 '<input type="checkbox" required>' +
-                '(required) I agree to the <span>privacy policy</span>' +
+                '(required) I agree to the ' +
+                '<button type="button" class="news-policy-btn" data-policy-open>privacy policy</button>' +
               '</label>' +
               '<div class="news-error" role="alert" hidden></div>' +
             '</form>' +
@@ -113,7 +114,18 @@
       '<button class="scroll-top" data-scroll-top aria-label="Scroll to top">' +
         '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">' +
         '<path d="M12 19V5M5 12l7-7 7 7"/></svg>' +
-      '</button>';
+      '</button>' +
+      // Privacy policy modal — identical copy to the cync newsletter.
+      '<div class="policy-modal" data-policy-modal hidden>' +
+        '<div class="policy-backdrop" data-policy-close></div>' +
+        '<div class="policy-card" role="dialog" aria-modal="true" aria-label="Privacy policy">' +
+          '<button class="policy-x" data-policy-close aria-label="Close">×</button>' +
+          '<div class="policy-title serif">Collection and Use of Personal Information</div>' +
+          '<p class="policy-text">We collect and use only the minimum personal information necessary for sending our newsletter. The collected information will not be used for any purpose other than sending, and will be immediately destroyed when the service ends or you unsubscribe.</p>' +
+          '<p class="policy-text">뉴스레터 발송을 위한 최소한의 개인정보를 수집하고 이용합니다. 수집된 정보는 발송 외 다른 목적으로 이용되지 않으며, 서비스가 종료되거나 구독을 해지할 경우 즉시 파기됩니다.</p>' +
+          '<div class="policy-foot"><button class="policy-close-btn" data-policy-close>Close</button></div>' +
+        '</div>' +
+      '</div>';
   }
 
   function infoRow(label, value) {
@@ -206,6 +218,26 @@
     });
   }
 
+  function wirePolicyModal() {
+    var modal = document.querySelector('[data-policy-modal]');
+    if (!modal) return;
+    function open(e) {
+      // Inside the consent <label> — don't toggle the checkbox.
+      if (e) { e.preventDefault(); e.stopPropagation(); }
+      modal.hidden = false;
+    }
+    function close() { modal.hidden = true; }
+    document.querySelectorAll('[data-policy-open]').forEach(function (b) {
+      b.addEventListener('click', open);
+    });
+    modal.querySelectorAll('[data-policy-close]').forEach(function (b) {
+      b.addEventListener('click', close);
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') close();
+    });
+  }
+
   // IntersectionObserver fallback for browsers without CSS scroll-timeline.
   function wireReveal() {
     if (CSS && CSS.supports && CSS.supports('animation-timeline: view()')) return;
@@ -238,6 +270,7 @@
     wireDrawer();
     wireNewsletter();
     wireScrollTop();
+    wirePolicyModal();
     wireReveal();
   });
 })();
