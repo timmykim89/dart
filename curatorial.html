@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Curatorial View — D'ART</title>
-  <meta name="description" content="The artists and exhibitions we encounter at the world's leading art fairs — the art world as seen through our eyes. @dartseoul">
+  <meta name="description" content="Fairs, museums, and exhibitions we visit — the art world as seen through our eyes. @dartseoul">
   <link rel="icon" href="assets/dart-logo.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -17,8 +17,9 @@
 
   <main class="page">
     <section class="page-header cur-header">
-      <div class="handle fade">@dartseoul</div>
-      <h1 class="serif fade">Curatorial View</h1>
+      <div class="eyebrow fade">Curatorial View</div>
+      <h1 class="serif fade">From the Field</h1>
+      <div class="handle fade">Fairs, museums, and exhibitions we visit</div>
       <div class="desc fade">The artists and exhibitions we encounter at the world's leading art fairs, the art world as seen through our eyes.</div>
       <a class="cur-follow fade" href="https://instagram.com/dartseoul" target="_blank" rel="noopener">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" stroke="none"/></svg>
@@ -37,12 +38,6 @@
   <script>
     /* ==========================================================
        Curatorial grid — live from the D'ART Instagram (@dartseoul).
-
-       The grid is filled by the serverless function at /api/instagram,
-       which holds the access token server-side and returns the account's
-       latest posts. Placeholders render instantly and stay as a fallback
-       if the live endpoint isn't reachable yet (e.g. before the token is
-       configured, or when viewing the files locally without `vercel dev`).
        See INSTAGRAM_SETUP.md for the one-time token setup.
        ========================================================== */
     (function () {
@@ -53,8 +48,6 @@
 
       var gridEl = document.getElementById('ig-grid');
 
-      // Curated stand-ins: shown instantly and kept as a fallback if the
-      // live endpoint isn't reachable (before token setup, or local file view).
       function placeholderFeed() {
         var files = [
           'gallery-1.jpg', 'gallery-2.jpg', 'gallery-3.jpg', 'gallery-4.jpg',
@@ -83,7 +76,6 @@
         }).join('');
       }
 
-      // Render placeholders now, then swap in the live @dartseoul feed.
       render(placeholderFeed());
       fetch('/api/instagram')
         .then(function (r) { return r.ok ? r.json() : null; })

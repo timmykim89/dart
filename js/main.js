@@ -1,5 +1,5 @@
 /* ============================================================
-   D'ART — shared chrome (header / drawer / footer / brand bar)
+   D'ART — shared chrome (header / menu / footer / brand bar)
    Injected on every page so markup lives in one place and works
    from file:// (no fetch-based includes).
    Each page sets <body data-page="about" data-nav="inner">.
@@ -8,26 +8,28 @@
   'use strict';
 
   // Newsletter signup proxy — same endpoint used by the cync homepage.
-  // POSTs { email } and expects { ok: true }. The email service integration
-  // lives behind this proxy, so no keys are needed on the D'ART side.
   var NEWSLETTER_ENDPOINT =
     'https://symphonious-baklava-a36141.netlify.app/.netlify/functions/signup';
 
   var IG_ICON =
-    '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">' +
-    '<rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4.2"/>' +
-    '<circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" stroke="none"/></svg>';
+    '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">' +
+    '<rect x="2.5" y="2.5" width="19" height="19" rx="5"/><circle cx="12" cy="12" r="4.2"/>' +
+    '<circle cx="17.2" cy="6.8" r="1" fill="currentColor" stroke="none"/></svg>';
+
+  var EMAIL_ICON =
+    '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">' +
+    '<rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="M4 6.5l8 6.5 8-6.5"/></svg>';
 
   var NAV_LINKS = [
     { key: 'about',      label: 'About',               href: 'about.html' },
     { key: 'services',   label: 'Services',            href: 'services.html' },
     { key: 'social',     label: 'Social Contribution', href: 'social.html' },
-    { key: 'curatorial', label: 'Curatorial',          href: 'curatorial.html' }
+    { key: 'curatorial', label: 'Curatorial View',     href: 'curatorial.html' }
   ];
 
-  function drawerLinks(current) {
+  function menuLinks(current) {
     return NAV_LINKS.map(function (l) {
-      var cls = 'drawer-link' + (l.key === current ? ' current' : '');
+      var cls = 'menu-link' + (l.key === current ? ' current' : '');
       return '<a class="' + cls + '" href="' + l.href + '">' + l.label + '</a>';
     }).join('');
   }
@@ -55,17 +57,9 @@
     }
 
     return nav +
-      '<div class="drawer-backdrop" data-menu-close></div>' +
-      '<div class="drawer" role="dialog" aria-label="Menu" aria-modal="true">' +
-        '<div class="drawer-head">' +
-          '<img src="assets/dart-logo.png" alt="D\'ART">' +
-          '<button class="drawer-close" data-menu-close aria-label="Close menu">×</button>' +
-        '</div>' +
-        '<nav>' + drawerLinks(current) + '</nav>' +
-        '<div class="drawer-copy">' +
-          '<p>Copyright © 2026 D\'ART Inc. 디아트 주식회사. All rights reserved.</p>' +
-          '<p>All artworks © respective artists. Unauthorized use is prohibited.</p>' +
-        '</div>' +
+      '<div class="menu-backdrop" data-menu-close hidden></div>' +
+      '<div class="menu-block ' + variant + '" data-menu-block data-closed role="dialog" aria-label="Menu">' +
+        '<nav class="menu-nav">' + menuLinks(current) + '</nav>' +
       '</div>';
   }
 
@@ -93,6 +87,10 @@
             infoRow('Hours', 'Tuesday–Friday, 11AM–5PM') +
             infoRow('Address', '1F, 577 Tongil-ro, Eunpyeong-gu, Seoul 03473') +
             infoRow('Contact', '<a href="mailto:timmykim@dartseoul.com">timmykim@dartseoul.com</a>') +
+            '<div class="footer-copyright">' +
+              '<p>Copyright © 2026 D\'ART Inc. 디아트 주식회사. All rights reserved.</p>' +
+              '<p>All artworks © respective artists. Unauthorized use is prohibited.</p>' +
+            '</div>' +
           '</div>' +
         '</div>' +
       '</div>' +
@@ -100,13 +98,10 @@
       '<div class="brand-bar">' +
         '<div class="lockup">' +
           '<img src="assets/dart-logo.png" alt="D\'ART">' +
-          '<div class="slash">/</div>' +
-          '<div class="tag">A Seoul-based art advisory</div>' +
         '</div>' +
         '<div class="icons">' +
           '<a class="foot-icon" href="mailto:timmykim@dartseoul.com" aria-label="Email">' +
-            '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">' +
-            '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M4 6l8 7 8-7"/></svg></a>' +
+            EMAIL_ICON + '</a>' +
           '<a class="foot-icon" href="https://instagram.com/dartseoul" target="_blank" rel="noopener" aria-label="Instagram">' +
             IG_ICON + '</a>' +
         '</div>' +
@@ -115,7 +110,6 @@
         '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">' +
         '<path d="M12 19V5M5 12l7-7 7 7"/></svg>' +
       '</button>' +
-      // Privacy policy modal — identical copy to the cync newsletter.
       '<div class="policy-modal" data-policy-modal hidden>' +
         '<div class="policy-backdrop" data-policy-close></div>' +
         '<div class="policy-card" role="dialog" aria-modal="true" aria-label="Privacy policy">' +
@@ -133,17 +127,25 @@
       '</div><div class="info-value">' + value + '</div></div>';
   }
 
-  function wireDrawer() {
-    var drawer = document.querySelector('.drawer');
-    var backdrop = document.querySelector('.drawer-backdrop');
-    if (!drawer) return;
+  function wireMenu() {
+    var block = document.querySelector('[data-menu-block]');
+    var backdrop = document.querySelector('.menu-backdrop');
+    if (!block) return;
 
-    function open() { drawer.classList.add('open'); backdrop.classList.add('open'); }
-    function close() { drawer.classList.remove('open'); backdrop.classList.remove('open'); }
+    function open() {
+      block.removeAttribute('data-closed');
+      block.setAttribute('data-open', '');
+      backdrop.hidden = false;
+    }
+    function close() {
+      block.removeAttribute('data-open');
+      block.setAttribute('data-closed', '');
+      backdrop.hidden = true;
+    }
 
     document.querySelectorAll('[data-menu-toggle]').forEach(function (b) {
       b.addEventListener('click', function () {
-        drawer.classList.contains('open') ? close() : open();
+        block.hasAttribute('data-open') ? close() : open();
       });
     });
     document.querySelectorAll('[data-menu-close]').forEach(function (b) {
@@ -194,7 +196,6 @@
         })
         .then(function (res) {
           if (res.ok && res.data && res.data.ok) {
-            // Match the design: swap the form for a thank-you line.
             form.outerHTML = '<div class="news-thanks">Thank you, we\'ll be in touch.</div>';
           } else {
             btn.disabled = false;
@@ -222,7 +223,6 @@
     var modal = document.querySelector('[data-policy-modal]');
     if (!modal) return;
     function open(e) {
-      // Inside the consent <label> — don't toggle the checkbox.
       if (e) { e.preventDefault(); e.stopPropagation(); }
       modal.hidden = false;
     }
@@ -238,7 +238,6 @@
     });
   }
 
-  // IntersectionObserver fallback for browsers without CSS scroll-timeline.
   function wireReveal() {
     if (CSS && CSS.supports && CSS.supports('animation-timeline: view()')) return;
     var els = document.querySelectorAll('.fade');
@@ -267,7 +266,7 @@
     if (headerMount) headerMount.innerHTML = headerMarkup(variant, current);
     if (footerMount) footerMount.innerHTML = footerMarkup();
 
-    wireDrawer();
+    wireMenu();
     wireNewsletter();
     wireScrollTop();
     wirePolicyModal();
