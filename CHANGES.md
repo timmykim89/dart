@@ -12,7 +12,13 @@ These replace the matching files in your `timmykim89/dart` repo. Overwrite in pl
 - **Curatorial**: header reordered to eyebrow → title → handle line (matches other pages); title changed to "From the Field" so it doesn't repeat the "Curatorial View" eyebrow/nav label; nav label updated to "Curatorial View".
 - **Footer**: brand bar text/slash removed (logo only, sized down slightly); copyright text moved from the menu into the footer under Contact; mobile layout gets a distinct background block for the info column instead of just stacking.
 
+## Latest changes (URL/back-button/favicon)
+- **Clean URLs**: `vercel.json` now sets `cleanUrls: true` — nav links point to `/about`, `/services`, `/social`, `/curatorial` (no `.html` in the address bar). Logo links to `/`.
+- **Back button**: from any inner page, pressing Back always returns to Home (`/`), not whatever page you arrived from.
+- **Favicon**: new `assets/favicon.png` (white background, black D'ART wordmark) — linked in every page's `<head>`.
+
 ## Steps
+
 1. Copy `assets/cync-logo.png` into your repo's `assets/` folder (new file).
 2. Overwrite `index.html`, `about.html`, `services.html`, `social.html`, `curatorial.html`, `css/style.css`, `js/main.js` with the versions here.
 3. Commit and push.

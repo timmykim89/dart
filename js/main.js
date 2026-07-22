@@ -21,10 +21,10 @@
     '<rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="M4 6.5l8 6.5 8-6.5"/></svg>';
 
   var NAV_LINKS = [
-    { key: 'about',      label: 'About',               href: 'about.html' },
-    { key: 'services',   label: 'Services',            href: 'services.html' },
-    { key: 'social',     label: 'Social Contribution', href: 'social.html' },
-    { key: 'curatorial', label: 'Curatorial View',     href: 'curatorial.html' }
+    { key: 'about',      label: 'About',               href: '/about' },
+    { key: 'services',   label: 'Services',            href: '/services' },
+    { key: 'social',     label: 'Social Contribution', href: '/social' },
+    { key: 'curatorial', label: 'Curatorial View',     href: '/curatorial' }
   ];
 
   function menuLinks(current) {
@@ -43,14 +43,14 @@
     if (variant === 'overlay') {
       nav =
         '<div class="nav-overlay">' +
-          '<a class="logo" href="index.html">' +
+          '<a class="logo" href="/">' +
             '<img src="assets/dart-logo.png" alt="D\'ART"></a>' +
           burger +
         '</div>';
     } else {
       nav =
         '<nav class="nav-inner">' +
-          '<a class="logo" href="index.html">' +
+          '<a class="logo" href="/">' +
             '<img src="assets/dart-logo.png" alt="D\'ART"></a>' +
           burger +
         '</nav>';
@@ -256,6 +256,17 @@
     els.forEach(function (el) { io.observe(el); });
   }
 
+  // Back button from any inner page always returns Home (not whatever
+  // page the visitor arrived from), regardless of how they landed here.
+  function wireBackToHome() {
+    var page = document.body.getAttribute('data-page');
+    if (!page) return; // already on Home
+    history.pushState({ dartGuard: true }, '', location.href);
+    window.addEventListener('popstate', function () {
+      location.href = '/';
+    });
+  }
+
   document.addEventListener('DOMContentLoaded', function () {
     var body = document.body;
     var variant = body.getAttribute('data-nav') || 'inner';
@@ -271,5 +282,6 @@
     wireScrollTop();
     wirePolicyModal();
     wireReveal();
+    wireBackToHome();
   });
 })();
