@@ -1,0 +1,9 @@
+{
+  "name": "dart-site",
+  "version": "1.0.0",
+  "private": true,
+  "description": "D'ART — Seoul art advisory. Static site + Instagram feed function on Vercel.",
+  "dependencies": {
+    "@vercel/kv": "^3.0.0"
+  }
+}

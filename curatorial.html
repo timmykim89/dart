@@ -36,13 +36,14 @@
   <script src="js/main.js"></script>
   <script>
     /* ==========================================================
-       Curatorial grid.
-       PRODUCTION: replace loadFeed() with a live pull from the
-       D'ART Instagram account (@dartseoul) via the Instagram Graph
-       API or a feed-embedding service. Return an array of
-       { src, href, alt } and the grid renders identically — only
-       the image source changes. The placeholders below stand in
-       for the live feed during development.
+       Curatorial grid — live from the D'ART Instagram (@dartseoul).
+
+       The grid is filled by the serverless function at /api/instagram,
+       which holds the access token server-side and returns the account's
+       latest posts. Placeholders render instantly and stay as a fallback
+       if the live endpoint isn't reachable yet (e.g. before the token is
+       configured, or when viewing the files locally without `vercel dev`).
+       See INSTAGRAM_SETUP.md for the one-time token setup.
        ========================================================== */
     (function () {
       var IG_ICON =
@@ -50,8 +51,11 @@
         '<rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4.2"/>' +
         '<circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" stroke="none"/></svg>';
 
-      // Placeholder feed — swap for the live Instagram pull in production.
-      function loadFeed() {
+      var gridEl = document.getElementById('ig-grid');
+
+      // Curated stand-ins: shown instantly and kept as a fallback if the
+      // live endpoint isn't reachable (before token setup, or local file view).
+      function placeholderFeed() {
         var files = [
           'gallery-1.jpg', 'gallery-2.jpg', 'gallery-3.jpg', 'gallery-4.jpg',
           'gallery-5.jpg', 'gallery-6.jpg', 'gallery-7.jpg', 'gallery-8.jpg',
@@ -63,22 +67,30 @@
         });
       }
 
+      function esc(s) { return String(s || '').replace(/"/g, '&quot;'); }
+
       function render(posts) {
-        var grid = document.getElementById('ig-grid');
-        if (!grid) return;
-        grid.innerHTML = posts.map(function (p) {
+        if (!gridEl) return;
+        gridEl.innerHTML = posts.map(function (p) {
           var open = p.href
             ? '<a class="ig-cell" href="' + p.href + '" target="_blank" rel="noopener">'
             : '<div class="ig-cell">';
           var close = p.href ? '</a>' : '</div>';
           return open +
-            '<img src="' + p.src + '" alt="' + (p.alt || '') + '">' +
+            '<img src="' + p.src + '" alt="' + esc(p.alt) + '" loading="lazy">' +
             '<div class="ig-overlay">' + IG_ICON + '</div>' +
             close;
         }).join('');
       }
 
-      render(loadFeed());
+      // Render placeholders now, then swap in the live @dartseoul feed.
+      render(placeholderFeed());
+      fetch('/api/instagram')
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (j) {
+          if (j && j.ok && j.data && j.data.length) render(j.data);
+        })
+        .catch(function () { /* keep placeholders */ });
     })();
   </script>
 </body>
