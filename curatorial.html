@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Curatorial View — D'ART</title>
+  <meta name="description" content="The artists and exhibitions we encounter at the world's leading art fairs — the art world as seen through our eyes. @dartseoul">
+  <link rel="icon" href="assets/dart-logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="curatorial" data-nav="inner">
+
+  <div id="site-header"></div>
+
+  <main class="page">
+    <section class="page-header cur-header">
+      <div class="handle fade">@dartseoul</div>
+      <h1 class="serif fade">Curatorial View</h1>
+      <div class="desc fade">The artists and exhibitions we encounter at the world's leading art fairs, the art world as seen through our eyes.</div>
+      <a class="cur-follow fade" href="https://instagram.com/dartseoul" target="_blank" rel="noopener">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" stroke="none"/></svg>
+        Follow on Instagram
+      </a>
+    </section>
+
+    <section class="ig-section">
+      <div class="ig-grid fade" id="ig-grid"></div>
+    </section>
+  </main>
+
+  <div id="site-footer"></div>
+
+  <script src="js/main.js"></script>
+  <script>
+    /* ==========================================================
+       Curatorial grid.
+       PRODUCTION: replace loadFeed() with a live pull from the
+       D'ART Instagram account (@dartseoul) via the Instagram Graph
+       API or a feed-embedding service. Return an array of
+       { src, href, alt } and the grid renders identically — only
+       the image source changes. The placeholders below stand in
+       for the live feed during development.
+       ========================================================== */
+    (function () {
+      var IG_ICON =
+        '<svg class="ig-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">' +
+        '<rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4.2"/>' +
+        '<circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" stroke="none"/></svg>';
+
+      // Placeholder feed — swap for the live Instagram pull in production.
+      function loadFeed() {
+        var files = [
+          'gallery-1.jpg', 'gallery-2.jpg', 'gallery-3.jpg', 'gallery-4.jpg',
+          'gallery-5.jpg', 'gallery-6.jpg', 'gallery-7.jpg', 'gallery-8.jpg',
+          'gallery-9.jpg', 'gallery-10.jpg', 'gallery-11.jpg',
+          'cur-1.jpg', 'cur-2.jpg', 'cur-3.jpg', 'cur-4.jpg'
+        ];
+        return files.map(function (f) {
+          return { src: 'assets/' + f, href: 'https://instagram.com/dartseoul', alt: '' };
+        });
+      }
+
+      function render(posts) {
+        var grid = document.getElementById('ig-grid');
+        if (!grid) return;
+        grid.innerHTML = posts.map(function (p) {
+          var open = p.href
+            ? '<a class="ig-cell" href="' + p.href + '" target="_blank" rel="noopener">'
+            : '<div class="ig-cell">';
+          var close = p.href ? '</a>' : '</div>';
+          return open +
+            '<img src="' + p.src + '" alt="' + (p.alt || '') + '">' +
+            '<div class="ig-overlay">' + IG_ICON + '</div>' +
+            close;
+        }).join('');
+      }
+
+      render(loadFeed());
+    })();
+  </script>
+</body>
+</html>
