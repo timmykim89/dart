@@ -84,7 +84,7 @@
             '</form>' +
           '</div>' +
           '<div>' +
-            infoRow('Hours', 'Tuesday–Friday, 11AM–5PM') +
+            infoRow('Hours', 'Tuesday - Friday, 11AM - 5PM') +
             infoRow('Address', '1F, 577 Tongil-ro, Eunpyeong-gu, Seoul 03473') +
             infoRow('Contact', '<a href="mailto:timmykim@dartseoul.com">timmykim@dartseoul.com</a>') +
             '<div class="footer-copyright">' +
