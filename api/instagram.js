@@ -5,26 +5,45 @@
 // normalized list the Curatorial grid renders as-is.
 //
 // Token source, in order of preference:
-//   1. Vercel KV key `ig_access_token` — kept fresh by the daily refresh cron
-//      (api/refresh.js). This is the zero-maintenance path.
-//   2. The `IG_ACCESS_TOKEN` environment variable — a long-lived token you
-//      paste into Vercel. Works on its own; lasts ~60 days between refreshes.
+//   1. A Redis-stored token (kept fresh by the daily refresh cron, api/refresh.js).
+//      Works with an Upstash Redis store connected on Vercel — reads either the
+//      KV_REST_API_* or UPSTASH_REDIS_REST_* env vars, whichever is present.
+//   2. The IG_ACCESS_TOKEN environment variable — a long-lived token you paste
+//      into Vercel. Works on its own; lasts ~60 days between refreshes.
 //
-// See INSTAGRAM_SETUP.md for how to obtain the token.
+// See INSTAGRAM_SETUP.md for how to obtain the token / set up auto-refresh.
 
 const GRAPH = 'https://graph.instagram.com';
 const FIELDS = 'id,caption,media_type,media_url,permalink,thumbnail_url,timestamp';
 const LIMIT = 15; // grid shows up to 15 cells
 
-async function getToken() {
-  // KV is optional. If it isn't configured, this quietly falls through to env.
+function redisEnv() {
+  const url = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
+  const token = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
+  return url && token ? { url, token } : null;
+}
+
+// Minimal Upstash REST call: POST the store URL with a single Redis command
+// as a JSON array, e.g. ['GET', 'ig_access_token'] -> { result: '...' }.
+async function redisCmd(cmd) {
+  const env = redisEnv();
+  if (!env) return null;
   try {
-    const { kv } = await import('@vercel/kv');
-    const t = await kv.get('ig_access_token');
-    if (t) return t;
+    const r = await fetch(env.url, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${env.token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify(cmd),
+    });
+    const j = await r.json();
+    return j.result;
   } catch (_) {
-    /* KV not set up — use the env token */
+    return null;
   }
+}
+
+async function getToken() {
+  const stored = await redisCmd(['GET', 'ig_access_token']);
+  if (stored) return stored;
   return process.env.IG_ACCESS_TOKEN || null;
 }
 
