@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Curatorial View — D'ART</title>
+  <meta name="description" content="Fairs, museums, and exhibitions we visit — the art world as seen through our eyes. @dartseoul">
+  <link rel="icon" href="assets/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="curatorial" data-nav="inner">
+
+  <div id="site-header"></div>
+
+  <main class="page">
+    <section class="page-header cur-header">
+      <div class="eyebrow fade">Curatorial View</div>
+      <h1 class="serif fade">From the Field</h1>
+      <div class="handle fade">Fairs, museums, and exhibitions we visit</div>
+      <div class="desc fade">The artists and exhibitions we encounter at the world's leading art fairs, the art world as seen through our eyes.</div>
+      <a class="cur-follow fade" href="https://instagram.com/dartseoul" target="_blank" rel="noopener">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" stroke="none"/></svg>
+        Follow on Instagram
+      </a>
+    </section>
+
+    <section class="ig-section">
+      <div class="ig-grid fade" id="ig-grid"></div>
+    </section>
+  </main>
+
+  <div id="site-footer"></div>
+
+  <script src="js/main.js"></script>
+  <script>
+    /* ==========================================================
+       Curatorial grid — live from the D'ART Instagram (@dartseoul).
+       See INSTAGRAM_SETUP.md for the one-time token setup.
+       ========================================================== */
+    (function () {
+      var IG_ICON =
+        '<svg class="ig-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">' +
+        '<rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4.2"/>' +
+        '<circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" stroke="none"/></svg>';
+
+      var gridEl = document.getElementById('ig-grid');
+
+      function placeholderFeed() {
+        var files = [
+          'gallery-1.png', 'gallery-2.png', 'gallery-3.png', 'gallery-4.png',
+          'gallery-5.png', 'gallery-6.png', 'gallery-7.png', 'gallery-8.png',
+          'gallery-9.png', 'gallery-10.png', 'gallery-11.png',
+          'cur-1.png', 'cur-2.png', 'cur-3.png', 'cur-4.png'
+        ];
+        return files.map(function (f) {
+          return { src: 'assets/grid/' + f, href: 'https://instagram.com/dartseoul', alt: '' };
+        });
+      }
+
+      function esc(s) { return String(s || '').replace(/"/g, '&quot;'); }
+
+      // Instagram's media_url points to full-resolution originals (often
+      // several MB) — resize on the fly via a free image proxy so the grid
+      // is fast on mobile. Local placeholder files are already small and
+      // pass through untouched.
+      function gridSrc(src) {
+        if (!/^https?:\/\//.test(src)) return src;
+        var bare = src.replace(/^https?:\/\//, '');
+        return 'https://images.weserv.nl/?url=' + encodeURIComponent(bare) +
+          '&w=480&h=480&fit=cover&q=75&output=jpg';
+      }
+
+      function render(posts) {
+        if (!gridEl) return;
+        gridEl.innerHTML = posts.map(function (p) {
+          var open = p.href
+            ? '<a class="ig-cell" href="' + p.href + '" target="_blank" rel="noopener">'
+            : '<div class="ig-cell">';
+          var close = p.href ? '</a>' : '</div>';
+          return open +
+            '<img src="' + gridSrc(p.src) + '" alt="' + esc(p.alt) + '" loading="lazy" decoding="async">' +
+            '<div class="ig-overlay">' + IG_ICON + '</div>' +
+            close;
+        }).join('');
+      }
+
+      render(placeholderFeed());
+      fetch('/api/instagram')
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (j) {
+          if (j && j.ok && j.data && j.data.length) render(j.data);
+        })
+        .catch(function () { /* keep placeholders */ });
+    })();
+  </script>
+</body>
+</html>
